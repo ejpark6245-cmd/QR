@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OLD and WISE — QR Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500&display=swap"
+        rel="stylesheet" />
+    <!-- QR Code library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        /* ── Variables ── */
+        :root {
+            --bg: #0c0b09;
+            --panel: #141209;
+            --gold: #c9a84c;
+            --gold-light: #e4c97e;
+            --gold-dim: #7a6030;
+            --gold-glow: rgba(201, 168, 76, 0.15);
+            --text: #f2ead8;
+            --muted: #a8987a;
+            --faint: #564b36;
+            --border: rgba(201, 168, 76, 0.14);
+            --border-mid: rgba(201, 168, 76, 0.28);
+            --radius: 12px;
+            --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            min-height: 100dvh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 1.5rem 5rem;
+            gap: 2.5rem;
+        }
+
+        /* ── Page Header ── */
+        .page-header {
+            text-align: center;
+            position: relative;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 200px;
+            background: radial-gradient(ellipse, var(--gold-glow) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .header-label {
+            font-size: 10px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gold-dim);
+            font-weight: 500;
+            margin-bottom: 0.6rem;
+        }
+
+        .header-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 6vw, 3rem);
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            line-height: 1;
+            color: var(--text);
+            text-shadow: 0 0 50px rgba(201, 168, 76, 0.18);
+        }
+
+        .header-brand em {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        .header-ornament {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--gold);
+            margin: 0.8rem 0;
+        }
+
+        .orn-line {
+            display: block;
+            width: 50px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-dim));
+        }
+
+        .orn-line:last-child {
+            background: linear-gradient(90deg, var(--gold-dim), transparent);
+        }
+
+        .header-sub {
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--faint);
+            font-weight: 400;
+        }
+
+        /* ── Input Panel ── */
+        .input-panel {
+            width: 100%;
+            max-width: 540px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .url-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .url-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-mid);
+            border-radius: 8px;
+            padding: 11px 14px;
+            color: var(--text);
+            font-size: 13.5px;
+            font-family: 'Inter', monospace;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition);
+            min-width: 0;
+        }
+
+        .url-input::placeholder {
+            color: var(--faint);
+        }
+
+        .url-input:focus {
+            border-color: var(--gold-dim);
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
+        }
+
+        .gen-btn {
+            background: linear-gradient(135deg, var(--gold) 0%, #b8922e 100%);
+            color: #1a1300;
+            border: none;
+            border-radius: 8px;
+            padding: 11px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all var(--transition);
+            flex-shrink: 0;
+        }
+
+        .gen-btn:hover {
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(201, 168, 76, 0.3);
+        }
+
+        .gen-btn:active {
+            transform: translateY(0);
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: var(--faint);
+            letter-spacing: 0.04em;
+        }
+
+        /* ── QR Output Card ── */
+        .qr-output {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            width: 100%;
+            max-width: 540px;
+        }
+
+        .qr-output.visible {
+            display: flex;
+        }
+
+        /* ── Printable Card ── */
+        .qr-card {
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid var(--border-mid);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Corner decorations */
+        .qr-card::before,
+        .qr-card::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-color: var(--gold-dim);
+            border-style: solid;
+        }
+
+        .qr-card::before {
+            top: 12px;
+            left: 12px;
+            border-width: 1.5px 0 0 1.5px;
+        }
+
+        .qr-card::after {
+            bottom: 12px;
+            right: 12px;
+            border-width: 0 1.5px 1.5px 0;
+        }
+
+        .qr-card-corners::before,
+        .qr-card-corners::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-color: var(--gold-dim);
+            border-style: solid;
+        }
+
+        .qr-card-corners::before {
+            top: 12px;
+            right: 12px;
+            border-width: 1.5px 1.5px 0 0;
+        }
+
+        .qr-card-corners::after {
+            bottom: 12px;
+            left: 12px;
+            border-width: 0 0 1.5px 1.5px;
+        }
+
+        /* Card Top Brand */
+        .card-top {
+            text-align: center;
+        }
+
+        .card-est {
+            font-size: 9.5px;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--gold-dim);
+            font-weight: 500;
+            margin-bottom: 0.35rem;
+        }
+
+        .card-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: var(--text);
+            letter-spacing: 0.08em;
+            line-height: 1;
+        }
+
+        .card-brand em {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        /* Ornament */
+        .card-ornament {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 80%;
+        }
+
+        .card-orn-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border-mid);
+        }
+
+        /* QR Frame */
+        .qr-frame {
+            position: relative;
+            padding: 14px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow:
+                0 0 0 1px rgba(201, 168, 76, 0.3),
+                0 0 30px rgba(201, 168, 76, 0.08);
+        }
+
+        #qrcode canvas,
+        #qrcode img {
+            display: block;
+            border-radius: 2px;
+        }
+
+        /* Scan hint */
+        .qr-scan-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        .scan-icon {
+            width: 18px;
+            height: 18px;
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        /* Card Bottom */
+        .card-bottom {
+            text-align: center;
+        }
+
+        .card-tagline {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-style: italic;
+            color: var(--gold);
+            margin-bottom: 0.25rem;
+        }
+
+        .card-sub {
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--faint);
+        }
+
+        /* ── Action Buttons ── */
+        .action-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 13px;
+            border-radius: 10px;
+            border: 1px solid var(--border-mid);
+            background: transparent;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .action-btn:hover {
+            border-color: var(--gold-dim);
+            color: var(--gold-light);
+            background: rgba(201, 168, 76, 0.05);
+        }
+
+        .action-btn.primary {
+            background: rgba(201, 168, 76, 0.08);
+            border-color: var(--border-mid);
+            color: var(--gold-light);
+        }
+
+        .action-btn.primary:hover {
+            background: rgba(201, 168, 76, 0.15);
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(201, 168, 76, 0.12);
+        }
+
+        /* ── How to use steps ── */
+        .steps-panel {
+            width: 100%;
+            max-width: 540px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem 1.75rem;
+        }
+
+        .steps-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 1.2rem;
+        }
+
+        .steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .step-num {
+            flex-shrink: 0;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(201, 168, 76, 0.1);
+            border: 1px solid var(--border-mid);
+            color: var(--gold);
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1px;
+        }
+
+        .step-text {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .step-text strong {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .step-text code {
+            background: rgba(201, 168, 76, 0.08);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 12px;
+            color: var(--gold-light);
+            font-family: monospace;
+        }
+
+        /* ── Print Styles ── */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+                display: block;
+            }
+
+            .page-header,
+            .input-panel,
+            .action-row,
+            .steps-panel {
+                display: none !important;
+            }
+
+            .qr-output {
+                display: flex !important;
+            }
+
+            .qr-card {
+                background: white;
+                border: 1px solid #e0d4b0;
+                border-radius: 12px;
+                max-width: 320px;
+                margin: 40px auto;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .card-brand {
+                color: #1a1300;
+            }
+
+            .card-brand em {
+                color: #9a6f1a;
+            }
+
+            .card-est,
+            .card-sub {
+                color: #8a7040;
+            }
+
+            .card-tagline {
+                color: #9a6f1a;
+            }
+
+            .scan-hint {
+                color: #7a6030;
+            }
+
+            .qr-scan-hint {
+                color: #8a7040;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-label">QR Menu Generator</div>
+        <div class="header-brand">OLD <em>&amp;</em> WISE</div>
+        <div class="header-ornament">
+            <span class="orn-line"></span>
+            <svg viewBox="0 0 16 16" width="14" height="14">
+                <circle cx="8" cy="8" r="3" fill="#c9a84c" />
+                <circle cx="2" cy="8" r="1.5" fill="#7a6030" />
+                <circle cx="14" cy="8" r="1.5" fill="#7a6030" />
+            </svg>
+            <span class="orn-line"></span>
+        </div>
+        <div class="header-sub">Scan · Sip · Enjoy</div>
+    </div>
+
+    <!-- URL Input Panel -->
+    <div class="input-panel">
+        <div class="input-label">메뉴 페이지 URL 입력</div>
+        <div class="url-row">
+            <input class="url-input" id="urlInput" type="url" placeholder="https://your-site.com/menu" value=""
+                autocomplete="off" spellcheck="false" />
+            <button class="gen-btn" id="generateBtn">생성</button>
+        </div>
+        <div class="input-hint">
+            💡 메뉴 사이트를 배포한 후 URL을 붙여넣고 QR을 생성하세요
+        </div>
+    </div>
+
+    <!-- QR Output (hidden until generated) -->
+    <div class="qr-output" id="qrOutput">
+
+        <!-- Branded QR Card (printable) -->
+        <div class="qr-card" id="qrCard">
+            <div class="qr-card-corners"></div>
+
+            <div class="card-top">
+                <div class="card-est">Est. in Good Times</div>
+                <div class="card-brand">OLD <em>&amp;</em> WISE</div>
+            </div>
+
+            <div class="card-ornament">
+                <div class="card-orn-line"></div>
+                <svg viewBox="0 0 16 8" width="20" height="10" fill="none">
+                    <path d="M0 4 Q4 0 8 4 Q12 8 16 4" stroke="#7a6030" stroke-width="1.2" fill="none" />
+                </svg>
+                <div class="card-orn-line"></div>
+            </div>
+
+            <!-- QR Code will be rendered here -->
+            <div class="qr-frame">
+                <div id="qrcode"></div>
+            </div>
+
+            <div class="qr-scan-hint">
+                <svg class="scan-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 7V5a2 2 0 012-2h2M3 17v2a2 2 0 002 2h2M17 3h2a2 2 0 012 2v2M17 21h2a2 2 0 002-2v-2" />
+                    <rect x="7" y="7" width="4" height="4" rx="0.5" />
+                    <rect x="13" y="7" width="4" height="4" rx="0.5" />
+                    <rect x="7" y="13" width="4" height="4" rx="0.5" />
+                    <path d="M13 13h1M16 13v1M14 15h1M15 16h2M13 16v1" />
+                </svg>
+                QR 코드를 스캔하여 메뉴 확인
+            </div>
+
+            <div class="card-ornament">
+                <div class="card-orn-line"></div>
+                <svg viewBox="0 0 16 8" width="20" height="10" fill="none">
+                    <path d="M0 4 Q4 8 8 4 Q12 0 16 4" stroke="#7a6030" stroke-width="1.2" fill="none" />
+                </svg>
+                <div class="card-orn-line"></div>
+            </div>
+
+            <div class="card-bottom">
+                <div class="card-tagline">Cocktails · Beer · Food</div>
+                <div class="card-sub">Scan &amp; Enjoy the Menu</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-row">
+            <button class="action-btn primary" id="downloadBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                PNG 저장
+            </button>
+            <button class="action-btn" id="printBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 6 2 18 2 18 9" />
+                    <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
+                    <rect x="6" y="14" width="12" height="8" />
+                </svg>
+                인쇄하기
+            </button>
+        </div>
+
+    </div>
+
+    <!-- How-to Steps -->
+    <div class="steps-panel">
+        <div class="steps-title">📌 배포 &amp; QR 생성 순서</div>
+        <div class="steps-list">
+            <div class="step-item">
+                <div class="step-num">1</div>
+                <div class="step-text">
+                    <strong>GitHub에 폴더 업로드</strong><br>
+                    <code>qr/</code> 폴더 전체를 GitHub 저장소에 올리세요
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-num">2</div>
+                <div class="step-text">
+                    <strong>GitHub Pages 활성화</strong><br>
+                    Settings → Pages → Branch: main → Save
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                    <strong>URL 복사</strong><br>
+                    <code>https://username.github.io/repo-name/</code>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-num">4</div>
+                <div class="step-text">
+                    <strong>위 입력창에 URL 붙여넣기</strong><br>
+                    → [생성] 버튼 → PNG 저장 → 인쇄 후 테이블에 부착
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- html2canvas for card screenshot -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        let qrInstance = null;
+
+        function generateQR(url) {
+            const container = document.getElementById('qrcode');
+            container.innerHTML = '';
+
+            qrInstance = new QRCode(container, {
+                text: url,
+                width: 220,
+                height: 220,
+                colorDark: '#1a1200',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H,
+            });
+
+            document.getElementById('qrOutput').classList.add('visible');
+        }
+
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) {
+                document.getElementById('urlInput').focus();
+                document.getElementById('urlInput').style.borderColor = 'rgba(200,80,80,0.6)';
+                setTimeout(() => {
+                    document.getElementById('urlInput').style.borderColor = '';
+                }, 1500);
+                return;
+            }
+            generateQR(url);
+            document.getElementById('qrOutput').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        document.getElementById('urlInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('generateBtn').click();
+        });
+
+        // Download PNG
+        document.getElementById('downloadBtn').addEventListener('click', async () => {
+            const card = document.getElementById('qrCard');
+            const canvas = await html2canvas(card, {
+                backgroundColor: '#141209',
+                scale: 3,
+                logging: false,
+                useCORS: true,
+            });
+            const link = document.createElement('a');
+            link.download = 'old-and-wise-qr.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+        // Print
+        document.getElementById('printBtn').addEventListener('click', () => {
+            window.print();
+        });
+    </script>
+</body>
+
+</html>

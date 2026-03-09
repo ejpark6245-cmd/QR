@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <title>OLD and WISE — Menu</title>
+    <meta name="description" content="OLD and WISE 바의 QR 메뉴판. 칵테일, 사이드 디쉬, 맥주, 논알콜 음료를 만나보세요." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar" id="sidebar">
+
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <div class="brand-est">Est. in Good Times</div>
+            <div class="brand-name">OLD <em>&amp;</em> WISE</div>
+            <div class="brand-sub">Cocktails · Beer · Food</div>
+        </div>
+
+        <!-- Ornament -->
+        <div class="sidebar-ornament">
+            <span class="orn-line"></span>
+            <svg viewBox="0 0 20 20" width="14" height="14" fill="none">
+                <circle cx="10" cy="10" r="3" fill="var(--gold)" />
+                <circle cx="3" cy="10" r="1.5" fill="var(--gold-dim)" />
+                <circle cx="17" cy="10" r="1.5" fill="var(--gold-dim)" />
+            </svg>
+            <span class="orn-line"></span>
+        </div>
+
+        <!-- Category Nav -->
+        <nav class="cat-nav" id="catNav">
+            <!-- JS로 생성 -->
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+            <div class="price-note">모든 가격은 만원 단위</div>
+            <div class="price-note-en">All prices in 10,000 KRW</div>
+        </div>
+
+    </aside>
+
+    <!-- ── Main Content ── -->
+    <div class="content-wrap">
+
+        <!-- Mobile Header (sidebar가 닫혀있을 때) -->
+        <header class="mobile-header" id="mobileHeader">
+            <button class="burger-btn" id="burgerBtn" aria-label="메뉴 열기">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="mobile-brand">OLD <em>&amp;</em> WISE</div>
+            <div class="mobile-brand-spacer"></div>
+        </header>
+
+        <!-- Menu Sections -->
+        <main class="menu-main" id="menuMain">
+            <!-- JS로 생성 -->
+        </main>
+
+        <footer class="footer">
+            <div class="footer-deco">
+                <span></span>
+                <svg viewBox="0 0 30 14" width="30" height="14" fill="none">
+                    <path d="M1 7 Q7.5 1 15 7 Q22.5 13 29 7" stroke="var(--gold-dim)" stroke-width="1" fill="none" />
+                </svg>
+                <span></span>
+            </div>
+            <p class="footer-copy">ⓒ OLD &amp; WISE · All rights reserved</p>
+        </footer>
+    </div>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <script src="menu.js"></script>
+</body>
+
+</html>
