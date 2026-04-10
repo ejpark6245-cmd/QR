@@ -598,7 +598,8 @@
                 {
                     "name_kr": "꿀자몽블랙티",
                     "name_en": "Honey Grapefruit Black Tea",
-                    "price": 0.6
+                    "price": 0.6,
+                    "original_price": 0.7
                 },
                 {
                     "name_kr": "프레시 레몬 스쿼시",
